@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>赛事规则 - 秋叶杯推理超级联赛</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #e63946;
+            --primary-glow: rgba(230, 57, 70, 0.6);
+            --gold: #f4a261;
+            --gold-glow: rgba(244, 162, 97, 0.5);
+            --dark: #0a0a0f;
+            --dark-card: rgba(18, 18, 30, 0.85);
+            --dark-card-border: rgba(230, 57, 70, 0.15);
+            --text: #e8e8e8;
+            --text-dim: #999;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: var(--dark);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        #particles-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 0; pointer-events: none;
+        }
+
+        .bg-glow {
+            position: fixed; border-radius: 50%; filter: blur(120px);
+            opacity: 0.1; pointer-events: none; z-index: 0;
+        }
+        .bg-glow-1 { width: 500px; height: 500px; background: var(--primary); top: -200px; right: -100px; animation: floatGlow1 12s ease-in-out infinite; }
+        .bg-glow-2 { width: 400px; height: 400px; background: var(--gold); bottom: -150px; left: -100px; animation: floatGlow2 15s ease-in-out infinite; }
+
+        @keyframes floatGlow1 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-80px, 80px); } }
+        @keyframes floatGlow2 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(60px, -60px); } }
+
+        nav {
+            position: fixed; top: 0; left: 0; width: 100%; z-index: 1000;
+            padding: 15px 40px; display: flex; justify-content: space-between; align-items: center;
+            transition: all 0.4s ease; backdrop-filter: blur(0px);
+        }
+        nav.scrolled {
+            background: rgba(10, 10, 15, 0.9); backdrop-filter: blur(20px);
+            box-shadow: 0 2px 30px rgba(230, 57, 70, 0.1); padding: 10px 40px;
+        }
+        .nav-brand {
+            font-family: 'Noto Serif SC', serif; font-size: 1.2rem; font-weight: 900;
+            color: var(--primary); text-decoration: none; letter-spacing: 2px;
+        }
+        .nav-links { display: flex; gap: 30px; list-style: none; }
+        .nav-links a {
+            color: var(--text-dim); text-decoration: none; font-size: 0.9rem;
+            font-weight: 500; letter-spacing: 1px; transition: color 0.3s; position: relative;
+        }
+        .nav-links a::after {
+            content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 2px;
+            background: var(--primary); transition: width 0.3s; box-shadow: 0 0 8px var(--primary-glow);
+        }
+        .nav-links a:hover { color: #fff; }
+        .nav-links a:hover::after { width: 100%; }
+        .nav-links a.active { color: var(--primary); }
+        .nav-links a.active::after { width: 100%; }
+
+        .page-header {
+            position: relative; z-index: 1; padding: 140px 40px 60px;
+            text-align: center; max-width: 900px; margin: 0 auto;
+        }
+        .page-header h1 {
+            font-family: 'Noto Serif SC', serif; font-size: 3rem; font-weight: 900;
+            background: linear-gradient(135deg, #fff, var(--primary));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+            margin-bottom: 15px;
+        }
+        .page-header p { color: var(--text-dim); font-size: 1.05rem; letter-spacing: 2px; }
+
+        .rules-container {
+            position: relative; z-index: 1; max-width: 900px; margin: 0 auto;
+            padding: 0 40px 100px;
+        }
+
+        .toc {
+            background: var(--dark-card); border: 1px solid var(--dark-card-border);
+            border-radius: 20px; padding: 40px; margin-bottom: 50px;
+            position: relative; overflow: hidden;
+        }
+        .toc::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--gold), var(--primary));
+        }
+        .toc h2 {
+            font-family: 'Noto Serif SC', serif; font-size: 1.5rem; font-weight: 900;
+            color: var(--gold); margin-bottom: 25px;
+        }
+        .toc-list { list-style: none; columns: 2; column-gap: 30px; }
+        .toc-list li { margin-bottom: 10px; break-inside: avoid; }
+        .toc-list a {
+            color: var(--text-dim); text-decoration: none; font-size: 0.95rem;
+            transition: color 0.3s; display: inline-flex; align-items: center; gap: 8px;
+        }
+        .toc-list a:hover { color: var(--primary); }
+        .toc-list .toc-num {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 24px; height: 24px; border-radius: 6px; font-size: 0.75rem;
+            font-weight: 700; background: rgba(230, 57, 70, 0.15); color: var(--primary);
+            flex-shrink: 0;
+        }
+
+        .chapter {
+            background: var(--dark-card); border: 1px solid var(--dark-card-border);
+            border-radius: 20px; padding: 45px; margin-bottom: 30px;
+            position: relative; overflow: hidden; transition: border-color 0.4s;
+        }
+        .chapter:hover { border-color: rgba(230, 57, 70, 0.3); }
+        .chapter-num {
+            display: inline-block; font-size: 0.75rem; letter-spacing: 3px;
+            color: var(--primary); font-weight: 700; margin-bottom: 10px;
+            padding: 4px 12px; background: rgba(230, 57, 70, 0.1); border-radius: 6px;
+        }
+        .chapter h2 {
+            font-family: 'Noto Serif SC', serif; font-size: 1.6rem; font-weight: 900;
+            color: #fff; margin-bottom: 25px; padding-bottom: 15px;
+            border-bottom: 1px solid rgba(230, 57, 70, 0.15);
+        }
+        .chapter h3 {
+            font-size: 1.15rem; font-weight: 700; color: var(--gold);
+            margin: 25px 0 12px; padding-left: 14px;
+            border-left: 3px solid var(--primary);
+        }
+        .chapter p {
+            font-size: 0.95rem; color: var(--text-dim); line-height: 2; margin-bottom: 12px;
+        }
+        .chapter ul {
+            list-style: none; margin: 12px 0; padding-left: 0;
+        }
+        .chapter ul li {
+            font-size: 0.95rem; color: var(--text-dim); line-height: 2;
+            padding-left: 24px; position: relative; margin-bottom: 4px;
+        }
+        .chapter ul li::before {
+            content: ''; position: absolute; left: 6px; top: 12px;
+            width: 6px; height: 6px; border-radius: 50%; background: var(--primary);
+        }
+        .chapter strong { color: #fff; }
+        .chapter .highlight {
+            background: rgba(230, 57, 70, 0.1); border: 1px solid rgba(230, 57, 70, 0.2);
+            border-radius: 10px; padding: 20px; margin: 15px 0;
+        }
+        .chapter .highlight p { margin-bottom: 8px; }
+
+        .compare-table {
+            width: 100%; border-collapse: separate; border-spacing: 0;
+            margin: 15px 0; border-radius: 12px; overflow: hidden;
+            border: 1px solid var(--dark-card-border);
+        }
+        .compare-table th {
+            background: rgba(230, 57, 70, 0.15); color: var(--primary);
+            font-weight: 700; font-size: 0.85rem; letter-spacing: 1px;
+            padding: 14px 18px; text-align: left;
+        }
+        .compare-table td {
+            padding: 14px 18px; font-size: 0.9rem; color: var(--text-dim);
+            border-top: 1px solid rgba(230, 57, 70, 0.08); line-height: 1.7;
+        }
+        .compare-table tr:hover td { background: rgba(230, 57, 70, 0.03); }
+        .compare-table td:first-child { color: var(--gold); font-weight: 500; white-space: nowrap; }
+
+        .back-top {
+            position: fixed; bottom: 30px; right: 30px; z-index: 999;
+            width: 48px; height: 48px; border-radius: 50%;
+            background: var(--dark-card); border: 1px solid var(--dark-card-border);
+            color: var(--primary); display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.3s; opacity: 0; pointer-events: none;
+        }
+        .back-top.visible { opacity: 1; pointer-events: auto; }
+        .back-top:hover { background: rgba(230, 57, 70, 0.15); transform: translateY(-3px); }
+
+        footer {
+            position: relative; z-index: 1; text-align: center; padding: 40px;
+            border-top: 1px solid rgba(230, 57, 70, 0.1); color: var(--text-dim);
+            font-size: 0.85rem; letter-spacing: 1px;
+        }
+
+        @media (max-width: 900px) {
+            .nav-links { display: none; }
+            .page-header h1 { font-size: 2.2rem; }
+            .toc-list { columns: 1; }
+            .chapter { padding: 30px 20px; }
+            .rules-container { padding: 0 20px 60px; }
+        }
+
+        @media (max-width: 600px) {
+            .page-header { padding: 120px 20px 40px; }
+            .page-header h1 { font-size: 1.8rem; }
+            .compare-table { font-size: 0.8rem; }
+            .compare-table th, .compare-table td { padding: 10px 12px; }
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--dark); }
+        ::-webkit-scrollbar-thumb { background: rgba(230, 57, 70, 0.3); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(230, 57, 70, 0.5); }
+    </style>
+</head>
+<body>
+    <canvas id="particles-canvas"></canvas>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+
+    <nav id="navbar">
+        <a href="index.html" class="nav-brand">秋叶杯</a>
+        <ul class="nav-links">
+            <li><a href="index.html">首页</a></li>
+            <li><a href="#toc" class="active">赛事规则</a></li>
+            <li><a href="index.html#contact">联系我们</a></li>
+        </ul>
+    </nav>
+
+    <div class="page-header">
+        <h1>官方规则及赛制</h1>
+        <p>秋叶杯推理超级联赛 · 完整规则文档</p>
+    </div>
+
+    <div class="rules-container">
+        <div class="toc" id="toc">
+            <h2>📋 目录</h2>
+            <ul class="toc-list">
+                <li><a href="#ch1"><span class="toc-num">一</span>赛事总则</a></li>
+                <li><a href="#ch2"><span class="toc-num">二</span>核心赛制流程</a></li>
+                <li><a href="#ch3"><span class="toc-num">三</span>时间燃烧机制</a></li>
+                <li><a href="#ch4"><span class="toc-num">四</span>出题核心规则</a></li>
+                <li><a href="#ch5"><span class="toc-num">五</span>答题核心规则</a></li>
+                <li><a href="#ch6"><span class="toc-num">六</span>积分规则</a></li>
+                <li><a href="#ch7"><span class="toc-num">七</span>违规处罚条例</a></li>
+                <li><a href="#ch8"><span class="toc-num">八</span>赛事执行细则</a></li>
+                <li><a href="#ch9"><span class="toc-num">九</span>外援规则</a></li>
+                <li><a href="#ch10"><span class="toc-num">十</span>附则</a></li>
+            </ul>
+        </div>
+
+        <div class="chapter" id="ch1">
+            <span class="chapter-num">CHAPTER 01</span>
+            <h2>一、赛事总则</h2>
+
+            <h3>1. 赛事宗旨</h3>
+            <p>本赛事为推理爱好者搭建专业竞技平台，主要为了给各位侦探提供一个可供交流的小团体，提升各位侦探的解题能力以及写作能力，同时提供一个日常娱乐方式。秉持公平、公正、公开的原则开展竞技，杜绝作弊、违规答题等行为，维护纯净赛事氛围。</p>
+
+            <h3>2. 参赛对象</h3>
+            <p>本次推理超级联赛共招募<strong>十五支参赛俱乐部</strong>，每支俱乐部满足以下人员要求：</p>
+            <ul>
+                <li>俱乐部人数上限：<strong>10人</strong></li>
+                <li>俱乐部人数下限：<strong>2人</strong></li>
+            </ul>
+            <p>参赛人员需固定俱乐部，队长需要统计并提交该赛季本俱乐部的具体参赛人员，赛季期间不得随意更换、增补队员。</p>
+            <p>赛季中以及赛季末可以进行自由转会，具体转会窗口期会由组委会进行通知。如需变更队员，需提前向赛事组委会提交书面申请，审核通过后方可调整，严禁临时换人参赛。</p>
+
+            <h3>3. 赛事时间</h3>
+            <ul>
+                <li>固定比赛时间：<strong>每周六晚19:00</strong>准时开赛，根据难度调整结束时间</li>
+                <li>赛事周期：贯穿全赛季，每两个俱乐部会碰面两次，总赛程大概为<strong>34周</strong>，直至决出最终排名与冠军俱乐部</li>
+            </ul>
+
+            <h3>4. 外援机制</h3>
+            <ul>
+                <li>外援需为推理爱好者，无赛事作弊记录</li>
+                <li>每支队伍最多招募<strong>2名外援</strong>，且外援人数不得超过队伍总人数的<strong>20%</strong>（例：10人队伍最多2名外援，5人队伍最多1名外援）</li>
+                <li>外援需在组委会处完成报名，方可流入转会市场。详见第九章</li>
+            </ul>
+        </div>
+
+        <div class="chapter" id="ch2">
+            <span class="chapter-num">CHAPTER 02</span>
+            <h2>二、核心赛制流程</h2>
+
+            <h3>1. 轮次出题机制</h3>
+            <p>每一轮比赛，由<strong>一支俱乐部全权负责出题工作</strong>，其余十四支俱乐部参与竞技对决。</p>
+            <p>解题俱乐部会对出题俱乐部进行评分（20分为满分），去除一个最高分、去除一个最低分后，会取所有解题俱乐部返评的平均分作为最终分数。</p>
+            <div class="highlight">
+                <p>⚠️ 出题俱乐部需严格遵守出题规范，保证题目质量，不得泄露题目、暗示答案，一经发现取消本轮出题资格，情节严重者追加赛事处罚。</p>
+                <p>出题要求：题目类型不限，题目难度适中，区分度合理，保证公平性。题目最终赛季结束后会考虑做成社刊，还望各大俱乐部不要整活。</p>
+                <p>出题题目的判别胜负方式会以文档的形式告知各位队长，还请诸位放心。</p>
+            </div>
+
+            <h3>2. 对决模式</h3>
+            <ul>
+                <li>除去出题俱乐部，剩余十四支解题俱乐部进行<strong>两两配对对决</strong></li>
+                <li>出题俱乐部将会根据解题组的返评平均分进行排名</li>
+                <li>每轮比赛，所有对决组<strong>同步开始答题，独立竞技，互不干扰</strong></li>
+            </ul>
+
+            <h3>3. 全赛季排名方式</h3>
+            <p>赛事采用积分制，所有轮次积分累计相加，按照总积分高低排列最终名次。若两队或多队总积分相同，优先对比<strong>答题正确率</strong>，其次对比<strong>有效答题次数</strong>，最后对比<strong>平局场次</strong>，依次排序分出先后。</p>
+        </div>
+
+        <div class="chapter" id="ch3">
+            <span class="chapter-num">CHAPTER 03</span>
+            <h2>三、时间燃烧机制</h2>
+
+            <h3>1. 目的</h3>
+            <p>为了加入竞速的元素以及更丰富的战术匹配，因此设立"时间燃烧机制"。"时间燃烧机制"将会纳入时间权重进行综合考量，同时也大大增加了队伍每次战术布置的丰富度。</p>
+            <p>时间燃烧机制并非一开始就进行燃烧，将会最大限度的保留做题所需的必要时间，如阅读、思考等。</p>
+            <div class="highlight">
+                <p>🔥 简而言之：<strong>越晚提交答案的队伍，将会赋予更少的分值权重。</strong></p>
+            </div>
+
+            <h3>2. 解释如下</h3>
+            <p>不同的题目，根据题目难度的不同，将会由出题组设置不同的时间权重。</p>
+            <p>题目一经发出，<strong>X小时</strong>后会开始进行时间燃烧，在X小时之前所提交答案则视为获得全部<strong>1.0</strong>的时间权重，并获得（分数×1.0）的总分数。在X小时后，会设立<strong>Y时段</strong>，根据每段Y时段的延后，逐渐降低所提交答案所获得的时间权重。</p>
+            <div class="highlight">
+                <p><strong>举例：</strong>出题组A对所出的A题限制答题时间为5个小时，出题组A认为在快的情况下3个小时内该题目足以被破解，因此出题组A所设立时间权重1.0的最晚时间为三个小时，随后每半个小时权重依次衰减。</p>
+                <p>即三小时内提交完答案的队伍则会获得<strong>×1.0</strong>的分值权重，三个小时~三个半小时提交完答案的队伍则会获得<strong>×0.9</strong>的分值权重，三个半小时~四个小时提交完题目的队伍则会获得<strong>×0.8</strong>的分值权重，四个小时~四个半小时提交完题目的队伍则会获得<strong>×0.7</strong>的分值权重，四个半小时~五个小时提交的队伍则会获得<strong>×0.6</strong>的分值权重。</p>
+                <p><strong>实战情况：</strong>A队伍在4.5~5的时段提交了答案并全对，则获得20分题目分值，但由于是最后时段提交的答案，所以总分为20×0.6（时间权重）=12分；B队伍在4~4.5的时段提交了答案，一共答对了18分，所以总分为18×0.7（时间权重）=12.6分，则<strong>B队伍获胜</strong></p>
+            </div>
+        </div>
+
+        <div class="chapter" id="ch4">
+            <span class="chapter-num">CHAPTER 04</span>
+            <h2>四、出题核心规则</h2>
+
+            <h3>1. 题目要求</h3>
+            <ul>
+                <li><strong>字数：</strong>维持在5000~20000之间（允许超出但不能超出过多）</li>
+                <li><strong>类型：</strong>不设限，任何类型的推理谜题均可</li>
+                <li><strong>时间：</strong>根据题目难度出题队伍自行决定</li>
+            </ul>
+
+            <h3>2. 有关分值赋予</h3>
+            <p>每道题的分值统一为<strong>20分</strong>，需要出题组根据谜题设置相应的问题，并对问题进行赋分，总分值为20分。</p>
+            <p>举例：问题1（2分）问题2（3分）问题3（8分）问题4（5分）问题5（2分）</p>
+            <p>问题的数量由出题组自行决定，可以是一个问题独享20分，也可以是多个问题分摊20分。</p>
+
+            <h3>3. 有关时间权重</h3>
+            <p>出题组需要在确定好题目后，决定好时间权重的时段以及权重比例，并与秋叶确认该题目的时间权重。</p>
+            <p>该权重根据题目的不同以及时段的不同允许进行改变，可以理解为每道题拥有单独的时间权重即可。</p>
+
+            <h3>4. 出题排行榜</h3>
+            <p>在本轮赛程结束后，所有队伍会对题目进行返评评分，满分为20。再去掉一个最高分以及去掉一个最低分后，所取得的平均分将会是队伍本轮出题所获得的分数。</p>
+        </div>
+
+        <div class="chapter" id="ch5">
+            <span class="chapter-num">CHAPTER 05</span>
+            <h2>五、答题核心规则</h2>
+
+            <h3>1. 答题次数限制</h3>
+            <p>每一轮比赛，单支俱乐部仅有<strong>1次答题机会</strong>。</p>
+
+            <h3>2. 答题分数判定</h3>
+            <p>本轮比赛遵循<strong>优先答案正确性，其次提交速度</strong>的原则，详细判定规则如下：</p>
+            <p>两支俱乐部对决时，按照提交的答案所获的分值乘以时间权重，综合进行评判。</p>
+            <p>所提交答案的分值将会有两个部分决定，由<strong>答题正确率分值 × 时间权重</strong>所得出的总分。</p>
+
+            <h3>3. 平局判定标准</h3>
+            <p>分值相同则判定平局。</p>
+
+            <h3>4. 答题提交规范</h3>
+            <ul>
+                <li>所有答案必须通过<strong>赛事指定渠道</strong>提交，口头答案、私下传递答案一律无效</li>
+                <li>提交答案需清晰准确，字迹模糊、表述歧义、答案不全的，一律判定为错误答案</li>
+                <li>提交答案后<strong>不可撤回、修改</strong>，以系统记录的提交时间、提交内容为准</li>
+            </ul>
+        </div>
+
+        <div class="chapter" id="ch6">
+            <span class="chapter-num">CHAPTER 06</span>
+            <h2>六、积分规则</h2>
+            <ul>
+                <li><strong>获胜俱乐部：</strong>单场对决取胜，获得<strong>3个积分</strong></li>
+                <li><strong>失败俱乐部：</strong>单场对决落败，获得<strong>0个积分</strong></li>
+                <li><strong>打平俱乐部：</strong>对决双方平局，各获得<strong>1个积分</strong></li>
+            </ul>
+        </div>
+
+        <div class="chapter" id="ch7">
+            <span class="chapter-num">CHAPTER 07</span>
+            <h2>七、违规处罚条例</h2>
+
+            <h3>1. 作弊行为</h3>
+            <p>参赛俱乐部出现抄袭答案、互通信息、使用外挂、场外求助、泄露题目等作弊行为，一经核实，<strong>本轮对决直接判负，扣除赛季全部积分</strong>，情节严重者直接取消参赛资格。</p>
+
+            <h3>2. 违规出题</h3>
+            <p>出题俱乐部泄露题目、故意出偏题怪题、题目存在严重漏洞影响比赛公平，<strong>取消出题资格</strong>，视情节扣除俱乐部积分。</p>
+
+            <h3>3. 迟到缺席</h3>
+            <p>参赛俱乐部未按时到场答题，视为<strong>自动放弃本轮对决，直接判负</strong>，对手俱乐部自动获胜；无故缺席两轮及以上，视为<strong>自动退赛</strong>。</p>
+
+            <h3>4. 扰乱赛事秩序</h3>
+            <p>参赛人员辱骂对手、起哄闹事、干扰其他俱乐部答题，给予<strong>警告处罚</strong>，屡教不改者判负处罚，情节恶劣者取消参赛资格。</p>
+        </div>
+
+        <div class="chapter" id="ch8">
+            <span class="chapter-num">CHAPTER 08</span>
+            <h2>八、赛事执行细则</h2>
+            <ul>
+                <li>每轮比赛开始前<strong>15分钟</strong>，各俱乐部需签到就位，确认参赛人员，做好答题准备</li>
+                <li><strong>19:00准时发放题目</strong>，计时开始，答题期间禁止交流、求助其他队伍以及外援</li>
+                <li>每轮比赛结束后，当场公布对决结果、积分情况，公示于<strong>小红书</strong></li>
+                <li>每轮结束后需内投出此次比赛的<strong>MVP选手</strong></li>
+                <li>赛季末期，根据总积分排名，决出冠、亚、季军，颁发奖杯与推理小说（可能会有神秘奖励，主要取决于秋叶能否挣到钱）</li>
+            </ul>
+        </div>
+
+        <div class="chapter" id="ch9">
+            <span class="chapter-num">CHAPTER 09</span>
+            <h2>九、外援规则</h2>
+
+            <h3>1. 外援定义与招募门槛</h3>
+            <p>外援指未作为普通参赛队员报名，由队伍在赛季期间招募，临时补充队伍实力、参与赛事的人员。与普通参赛队员核心区别：<strong>不绑定单一队伍（本赛季仅可效力1支）、无全程参赛义务、权限受限</strong>，核心作用为丰富队伍协作形式，不破坏赛事公平。</p>
+            <p>招募门槛：</p>
+            <ul>
+                <li>外援需为推理爱好者，无赛事作弊记录</li>
+                <li>每支队伍最多招募2名外援，且外援人数不得超过队伍总人数的20%</li>
+                <li>外援需在组委会处完成报名，方可流入转会市场</li>
+            </ul>
+
+            <h3>2. 外援与普通参赛人员的核心区别（重点）</h3>
+
+            <table class="compare-table">
+                <thead>
+                    <tr><th>区别维度</th><th>普通参赛队员</th><th>外援</th></tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>参赛权限</td>
+                        <td>全程参与赛季所有轮次比赛，可参与出题工作，可作为队伍代表参与组委会沟通</td>
+                        <td>仅可参与竞技对决，不可参与出题工作，不可作为队伍代表沟通，可申请缺席不超过3轮</td>
+                    </tr>
+                    <tr>
+                        <td>荣誉与奖励</td>
+                        <td>可获得赛季全部荣誉，赛季结束后可直接保留队伍资格，无需重新报名</td>
+                        <td>不参与队伍集体荣誉评选（冠亚季军奖牌仅颁发给普通参赛队员），赛季结束后外援资格自动失效</td>
+                    </tr>
+                    <tr>
+                        <td>转会与绑定</td>
+                        <td>绑定队伍，转会需双方队伍协商，只能在转会窗口期进行转会</td>
+                        <td>不绑定队伍（本赛季仅效力1支），转会门槛低于普通队员，转会周期为一个月</td>
+                    </tr>
+                    <tr>
+                        <td>答题与责任</td>
+                        <td>可主导答题提交，对队伍答题行为负主要责任，违规答题需承担相应处罚</td>
+                        <td>仅可参与队伍内部讨论，不可单独提交答案，违规行为由所属队伍承担处罚</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>3. 外援使用限制</h3>
+            <p>外援不得转为普通参赛队员（本赛季内），下赛季可通过正常报名渠道成为普通参赛队员。</p>
+
+            <h3>4. 外援退出机制</h3>
+            <ul>
+                <li>外援可自愿提交退出申请，提前1个工作日告知所属队伍及组委会，退出后本赛季不可再加入任何队伍</li>
+                <li>外援累计缺席超过3轮，或出现违规行为2次及以上，组委会直接取消其外援资格</li>
+                <li>队伍可在转会窗内，申请解除与外援的绑定关系，解除后外援可被其他队伍招募（本赛季仅1次机会）</li>
+            </ul>
+        </div>
+
+        <div class="chapter" id="ch10">
+            <span class="chapter-num">CHAPTER 10</span>
+            <h2>十、附则</h2>
+            <ul>
+                <li>本规则最终解释权归<strong>秋叶推理超级联赛赛事组委会</strong>所有</li>
+                <li>赛事期间若遇特殊情况，组委会有权调整赛程、临时补充规则，提前告知所有参赛俱乐部</li>
+                <li>所有参赛俱乐部报名参赛，即视为<strong>认可并遵守本规则全部条款</strong></li>
+            </ul>
+        </div>
+    </div>
+
+    <button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 15l-6-6-6 6"/></svg>
+    </button>
+
+    <footer>
+        <p>&copy; 2026 秋叶杯推理超级联赛 版权所有 &nbsp;|&nbsp; 规则最终解释权归赛事组委会所有</p>
+    </footer>
+
+    <script>
+        (function() {
+            var canvas = document.getElementById('particles-canvas');
+            var ctx = canvas.getContext('2d');
+            var particles = [];
+            function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+            resize();
+            window.addEventListener('resize', resize);
+            function Particle() {
+                this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5; this.speedX = (Math.random() - 0.5) * 0.3;
+                this.speedY = (Math.random() - 0.5) * 0.3; this.opacity = Math.random() * 0.4 + 0.1;
+            }
+            for (var i = 0; i < 50; i++) particles.push(new Particle());
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (var i = 0; i < particles.length; i++) {
+                    var p = particles[i];
+                    p.x += p.speedX; p.y += p.speedY;
+                    if (p.x < 0) p.x = canvas.width; if (p.x > canvas.width) p.x = 0;
+                    if (p.y < 0) p.y = canvas.height; if (p.y > canvas.height) p.y = 0;
+                    ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(230, 57, 70, ' + p.opacity + ')'; ctx.fill();
+                }
+                requestAnimationFrame(animate);
+            }
+            animate();
+        })();
+
+        window.addEventListener('scroll', function() {
+            var navbar = document.getElementById('navbar');
+            var backTop = document.getElementById('backTop');
+            if (window.scrollY > 50) navbar.classList.add('scrolled');
+            else navbar.classList.remove('scrolled');
+            if (window.scrollY > 400) backTop.classList.add('visible');
+            else backTop.classList.remove('visible');
+        });
+
+        document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                var target = document.querySelector(this.getAttribute('href'));
+                if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        });
+    </script>
+</body>
+</html>
